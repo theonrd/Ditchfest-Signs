@@ -33,6 +33,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
+
+            // Activate the clicked button and deactivate others
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Filter images
             const filter = this.getAttribute('data-filter');
             document.querySelectorAll('.image-container').forEach(img => {
                 if (filter === 'all' || img.getAttribute('data-type') === filter) {

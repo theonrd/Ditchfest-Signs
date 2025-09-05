@@ -88,12 +88,12 @@ footer {
     padding: 10px 22px;
     font-size: 1rem;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s, border 0.15s;
+    transition: border 0.15s;
 }
 
 .filter-btn:hover,
 .filter-btn.active {
-    background: #fff;
-    color: #181818;
+    background: #1a1a1a;
+    color: #fff;
     border: 1px solid #fff;
 }

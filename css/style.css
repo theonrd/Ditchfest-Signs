@@ -27,15 +27,6 @@ h1 {
     box-sizing: border-box;
 }
 
-.column {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    flex: 1;
-    min-width: 200px;
-    max-width: 300px;
-}
-
 .image-container {
     position: relative;
     width: 100%;

@@ -28,7 +28,7 @@ footer {
     gap: 15px;
     justify-items: center;
     align-items: start;
-    margin: 20px auto;
+    margin: 30px auto;
     max-width: 1300px; /* Ограничение ширины */
     box-sizing: border-box;
 }

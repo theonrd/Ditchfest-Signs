@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const images = document.querySelectorAll('.image-container');
     const notification = document.getElementById('notification');
+    const defaultFilter = 'backgrounds';
 
     images.forEach(image => {
         image.addEventListener('click', async function() {
@@ -29,6 +30,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 2000);
             }
         });
+    });
+
+    // Set default filter
+    document.querySelectorAll('.image-container').forEach(img => {
+        if (img.getAttribute('data-type') !== defaultFilter) {
+            img.style.display = 'none';
+        }
     });
 
     document.querySelectorAll('.filter-btn').forEach(btn => {

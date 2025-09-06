@@ -22,7 +22,7 @@ h1 {
     gap: 15px;
     justify-items: center;
     align-items: start;
-    margin: 30px auto;
+    margin: 20px auto;
     max-width: 1300px; /* Ограничение ширины */
     box-sizing: border-box;
 }
@@ -73,12 +73,11 @@ footer {
 }
 
 .filter-buttons {
-    margin-top: 10px;
+    margin: 20px 0;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 12px;
-    margin: 20px 0;
     padding: 0 10px;
 }
 
@@ -98,4 +97,26 @@ footer {
     background: #1a1a1a;
     color: #fff;
     border: 1px solid #fff;
+}
+
+.accordion-toggle {
+    margin: 10px 0;
+    text-align: center;
+    cursor: pointer;
+    color: #aaaaaa;
+    text-decoration: underline;
+}
+
+.accordion-toggle:hover {
+    color: #fff;
+}
+
+.accordion-content {
+    display: none;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.accordion-content.open {
+    display: block;
 }

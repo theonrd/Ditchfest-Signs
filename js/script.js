@@ -32,6 +32,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    const toggle = document.querySelector('.accordion-toggle');
+    const content = document.querySelector('.accordion-content');
+
+    toggle.addEventListener('click', function () {
+        content.classList.toggle('open');
+    });
+
     // Set default filter
     document.querySelectorAll('.image-container').forEach(img => {
         if (img.getAttribute('data-type') !== defaultFilter) {

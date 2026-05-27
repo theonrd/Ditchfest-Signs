@@ -1,7 +1,40 @@
 document.addEventListener('DOMContentLoaded', function() {
     const images = document.querySelectorAll('.image-container');
     const notification = document.getElementById('notification');
+    const defaultTopFilter = '1x4';
     const defaultFilter = 'backgrounds';
+
+    // Top-level filter logic
+    const topButtons = document.querySelectorAll('.top-btn');
+    const filterGroups = {
+        '1x4': document.getElementById('filters-1x4'),
+        '1x6': document.getElementById('filters-1x6')
+    };
+
+    topButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const topFilter = this.getAttribute('data-top-filter');
+            
+            // Toggle active class for top buttons
+            topButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Show relevant bottom filters, hide others
+            Object.keys(filterGroups).forEach(key => {
+                if (key === topFilter) {
+                    filterGroups[key].style.display = 'flex';
+                } else {
+                    filterGroups[key].style.display = 'none';
+                }
+            });
+
+            // Auto-activate the first filter in the group
+            const firstGroupBtn = filterGroups[topFilter].querySelector('.filter-btn');
+            if (firstGroupBtn) {
+                firstGroupBtn.click();
+            }
+        });
+    });
 
     images.forEach(image => {
         image.addEventListener('click', async function() {
@@ -46,11 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    document.querySelectorAll('.bottom-level .filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
 
-            // Activate the clicked button and deactivate others
-            document.querySelectorAll('.filter-btn').forEach(b => {
+            // Activate the clicked button in its group and deactivate others in ALL bottom groups
+            document.querySelectorAll('.bottom-level .filter-btn').forEach(b => {
                 b.classList.remove('active');
             });
             this.classList.add('active');

@@ -63,12 +63,20 @@ footer {
 }
 
 .filter-buttons {
-    margin: 20px 0;
+    margin: 10px 0;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 12px;
     padding: 0 10px;
+}
+
+.filter-buttons.top-level {
+    margin-top: 20px;
+}
+
+.filter-buttons.bottom-level {
+    margin-bottom: 20px;
 }
 
 .filter-btn {

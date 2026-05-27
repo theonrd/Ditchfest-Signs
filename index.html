@@ -20,14 +20,22 @@
                 </div>
         </div>
 
-        <!-- Filter Buttons -->
-        <div class="filter-buttons">
+        <!-- Level 1 Filter Buttons -->
+        <div class="filter-buttons top-level">
+                <button class="filter-btn top-btn active" data-top-filter="1x4">1x4</button>
+                <button class="filter-btn top-btn" data-top-filter="1x6">1x6</button>
+        </div>
+
+        <!-- Level 2 Filter Buttons -->
+        <div class="filter-buttons bottom-level" id="filters-1x4">
                 <button class="filter-btn active" data-filter="backgrounds">Backgrounds</button>
-                <button class="filter-btn" data-filter="ditchfest">Ditchfest</button>
                 <button class="filter-btn" data-filter="overlays">Overlays</button>
                 <button class="filter-btn" data-filter="memes">Memes</button>
                 <button class="filter-btn" data-filter="mappers">Mappers</button>
                 <button class="filter-btn" data-filter="all">All</button>
+        </div>
+        <div class="filter-buttons bottom-level" id="filters-1x6" style="display: none;">
+                <button class="filter-btn" data-filter="ditchfest">Ditchfest</button>
         </div>
         <div class="gallery">
                 <!-- Backgrounds -->

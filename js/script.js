@@ -31,8 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (topFilter === 'all') {
-                // Show all images
-                images.forEach(img => {
+                // Show all images from all categories
+                document.querySelectorAll('.image-container').forEach(img => {
                     img.style.display = '';
                 });
                 // Deactivate all bottom buttons

@@ -21,17 +21,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Show relevant bottom filters, hide others
             Object.keys(filterGroups).forEach(key => {
-                if (key === topFilter) {
-                    filterGroups[key].style.display = 'flex';
-                } else {
-                    filterGroups[key].style.display = 'none';
+                if (filterGroups[key]) {
+                    if (key === topFilter) {
+                        filterGroups[key].style.display = 'flex';
+                    } else {
+                        filterGroups[key].style.display = 'none';
+                    }
                 }
             });
 
-            // Auto-activate the first filter in the group
-            const firstGroupBtn = filterGroups[topFilter].querySelector('.filter-btn');
-            if (firstGroupBtn) {
-                firstGroupBtn.click();
+            if (topFilter === 'all') {
+                // Show all images
+                images.forEach(img => {
+                    img.style.display = '';
+                });
+                // Deactivate all bottom buttons
+                document.querySelectorAll('.bottom-level .filter-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+            } else {
+                // Auto-activate the first filter in the group
+                const firstGroupBtn = filterGroups[topFilter].querySelector('.filter-btn');
+                if (firstGroupBtn) {
+                    firstGroupBtn.click();
+                }
             }
         });
     });

@@ -30,9 +30,17 @@ body::before {
     pointer-events: none;
 }
 
-h1 {
+.logo-container {
     text-align: center;
-    color: #ffffff;
+    margin-bottom: 20px;
+    margin-top: 30px;
+}
+
+.main-logo {
+    max-width: 300px;
+    width: 90%;
+    height: auto;
+    opacity: 1.0;
 }
 
 footer {

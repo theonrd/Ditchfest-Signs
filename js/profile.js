@@ -82,9 +82,11 @@
     function showAdminLink() {
         const card = document.getElementById('profile-card');
         if (!card || document.getElementById('profile-admin-link')) return;
-        const link = el('a', 'auth-btn', 'Admin panel');
+        const link = document.createElement('a');
+        link.className = 'auth-btn';
         link.id = 'profile-admin-link';
         link.href = 'admin.html';
+        link.textContent = 'Admin panel';
         card.appendChild(link);
     }
 

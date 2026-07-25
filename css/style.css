@@ -356,3 +356,127 @@ footer {
 .profile-card .auth-btn {
     margin-top: 24px;
 }
+
+/* --- Voting --- */
+.edition {
+    max-width: 1300px;
+    margin: 0 auto 40px auto;
+}
+
+.edition-title {
+    color: #fff;
+    font-size: 1.3rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+}
+
+.map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.map-card {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.025);
+    border: 1px solid #333;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.map-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background-color: #111;
+}
+
+.map-name {
+    color: #e0e0e0;
+    font-weight: bold;
+    padding: 10px 12px 2px 12px;
+}
+
+.map-author {
+    color: #aaaaaa;
+    font-size: 0.85rem;
+    padding: 0 12px 10px 12px;
+}
+
+.vote-btn {
+    margin: auto 12px 12px 12px;
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 8px 0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border 0.15s, background 0.15s;
+}
+
+.vote-btn:hover {
+    border: 1px solid #fff;
+}
+
+.vote-btn.voted {
+    background: #2e7d32;
+    border-color: #2e7d32;
+}
+
+.vote-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* --- Mappers leaderboard --- */
+.leaderboard {
+    max-width: 640px;
+    margin: 30px auto;
+    width: 100%;
+    border-collapse: collapse;
+    background-color: rgba(255, 255, 255, 0.025);
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.leaderboard th,
+.leaderboard td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.leaderboard th {
+    color: #aaaaaa;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.leaderboard td {
+    color: #e0e0e0;
+}
+
+.leaderboard tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.lb-rank {
+    width: 48px;
+    color: #888;
+}
+
+.lb-votes {
+    text-align: right;
+    width: 80px;
+    font-weight: bold;
+}
+
+.leaderboard th.lb-votes {
+    text-align: right;
+}

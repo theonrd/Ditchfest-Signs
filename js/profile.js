@@ -66,11 +66,26 @@
                 if (res.status === 401) {
                     window.tmAuth.logout();
                     render();
+                    return null;
                 }
+                return res.json();
+            })
+            .then(function (data) {
+                if (data && data.isAdmin) showAdminLink();
             })
             .catch(function () {
                 // Network error — leave the locally-decoded view as-is.
             });
+    }
+
+    // Show an "Admin panel" link on the card, only for admins.
+    function showAdminLink() {
+        const card = document.getElementById('profile-card');
+        if (!card || document.getElementById('profile-admin-link')) return;
+        const link = el('a', 'auth-btn', 'Admin panel');
+        link.id = 'profile-admin-link';
+        link.href = 'admin.html';
+        card.appendChild(link);
     }
 
     // auth.js registers its DOMContentLoaded handler first (it's included first),

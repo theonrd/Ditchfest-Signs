@@ -85,6 +85,15 @@ document.addEventListener('DOMContentLoaded', function() {
         content.classList.toggle('open');
     });
 
+    // Background movement effect
+    document.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 4; // Смещение до 8px
+        const y = (e.clientY / window.innerHeight - 0.5) * 4;
+        
+        document.body.style.setProperty('--bg-x', `${x}px`);
+        document.body.style.setProperty('--bg-y', `${y}px`);
+    });
+
     // Set default filter
     document.querySelectorAll('.image-container').forEach(img => {
         if (img.getAttribute('data-type') !== defaultFilter) {

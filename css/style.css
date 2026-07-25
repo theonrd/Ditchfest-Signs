@@ -1,9 +1,33 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 20px;
-    background-color: #1a1a1a;
+    padding: 0;
     color: #e0e0e0;
+    background-color: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    flex: 1;
+    padding: 20px;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url('../res/bckgr2.png') no-repeat center center;
+    background-size: cover;
+    filter: blur(0px);
+    z-index: -1;
+    transform: scale(1.25) translate(var(--bg-x, 0), var(--bg-y, 0));
+    transition: transform 0.1s ease-out; /* Плавность движения */
+    pointer-events: none;
 }
 
 h1 {
@@ -13,8 +37,13 @@ h1 {
 
 footer {
     text-align: center;
-    margin-top: 40px;
+    margin-top: 20px;
+    padding: 20px 20px 40px 20px;
     color: #666;
+}
+
+.copyright {
+    margin-top: 10px;
 }
 
 .subtitle {
@@ -124,5 +153,41 @@ footer {
     color: #444;
     font-size: 0.8rem;
     margin-top: 20px;
-    margin-bottom: -30px;
+    margin-bottom: 0;
+}
+
+.discord-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 0;
+    flex-wrap: wrap;
+}
+
+.discord-link-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #e0e0e0;
+    transition: transform 0.2s;
+}
+
+.discord-link-item:hover {
+    transform: scale(1.05);
+}
+
+.discord-link-item span {
+    font-size: 0.9rem;
+}
+
+.discord-icon {
+    width: 32px;
+    height: 32px;
+    transition: opacity 0.2s;
+    opacity: 0.8;
+}
+
+.discord-link-item:hover .discord-icon {
+    opacity: 1;
 }

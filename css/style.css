@@ -357,62 +357,115 @@ footer {
     margin-top: 24px;
 }
 
-/* --- Voting --- */
-.edition {
-    max-width: 1300px;
-    margin: 0 auto 40px auto;
+/* --- Voting: collapsible groups per Ditchfest number --- */
+#voting-root {
+    max-width: 820px;
+    margin: 0 auto;
 }
 
-.edition-title {
-    color: #fff;
-    font-size: 1.3rem;
-    border-bottom: 1px solid #333;
-    padding-bottom: 8px;
-    margin-bottom: 16px;
-}
-
-.map-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.map-card {
-    display: flex;
-    flex-direction: column;
-    background-color: rgba(255, 255, 255, 0.025);
+.vote-group {
     border: 1px solid #333;
     border-radius: 6px;
+    margin-bottom: 8px;
+    background-color: rgba(255, 255, 255, 0.02);
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.vote-group-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: transparent;
+    color: #fff;
+    border: none;
+    padding: 12px 16px;
+    font-size: 1.05rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.vote-group-header:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.vote-group-header::before {
+    content: "▸";
+    color: #888;
+    margin-right: 8px;
+    transition: transform 0.15s;
+    display: inline-block;
+}
+
+.vote-group.open .vote-group-header::before {
+    transform: rotate(90deg);
+}
+
+.vg-title {
+    flex: 1;
+}
+
+.vg-count {
+    color: #888;
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
+.vote-group-body {
+    display: none;
+    border-top: 1px solid #2a2a2a;
+}
+
+.vote-group.open .vote-group-body {
+    display: block;
+}
+
+.map-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border-bottom: 1px solid #242424;
+}
+
+.map-row:last-child {
+    border-bottom: none;
 }
 
 .map-thumb {
-    width: 100%;
-    aspect-ratio: 16 / 9;
+    width: 64px;
+    height: 36px;
+    flex-shrink: 0;
     object-fit: cover;
+    border-radius: 3px;
     background-color: #111;
+}
+
+.map-info {
+    flex: 1;
+    min-width: 0;
 }
 
 .map-name {
     color: #e0e0e0;
-    font-weight: bold;
-    padding: 10px 12px 2px 12px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .map-author {
-    color: #aaaaaa;
-    font-size: 0.85rem;
-    padding: 0 12px 10px 12px;
+    color: #888;
+    font-size: 0.8rem;
 }
 
 .vote-btn {
-    margin: auto 12px 12px 12px;
     background: #1a1a1a;
     color: #fff;
     border: 1px solid #444;
     border-radius: 5px;
-    padding: 8px 0;
+    padding: 8px 14px;
     font-size: 1rem;
     cursor: pointer;
     transition: border 0.15s, background 0.15s;
@@ -430,6 +483,13 @@ footer {
 .vote-btn:disabled {
     opacity: 0.6;
     cursor: default;
+}
+
+.vote-btn-sm {
+    flex-shrink: 0;
+    min-width: 56px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
 }
 
 /* --- Mappers leaderboard --- */

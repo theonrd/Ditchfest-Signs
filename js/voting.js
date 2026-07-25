@@ -55,47 +55,63 @@
             );
         }
 
-        editions.forEach(function (edition) {
-            const section = el('section', 'edition');
-            section.appendChild(el('h2', 'edition-title', edition.name));
+        // One collapsible group per Ditchfest edition (number). Newest is open
+        // by default; the rest start collapsed so the page reads as a list of
+        // numbers you can expand.
+        editions.forEach(function (edition, index) {
+            const group = el('section', 'vote-group');
+            if (index === 0) group.classList.add('open');
 
-            const grid = el('div', 'map-grid');
-            edition.maps.forEach(function (map) {
-                grid.appendChild(mapCard(map));
+            const header = el('button', 'vote-group-header');
+            header.appendChild(el('span', 'vg-title', edition.name));
+            header.appendChild(
+                el('span', 'vg-count', edition.maps.length + ' maps')
+            );
+            header.addEventListener('click', function () {
+                group.classList.toggle('open');
             });
-            section.appendChild(grid);
-            root.appendChild(section);
+            group.appendChild(header);
+
+            const body = el('div', 'vote-group-body');
+            edition.maps.forEach(function (map) {
+                body.appendChild(mapRow(map));
+            });
+            group.appendChild(body);
+
+            root.appendChild(group);
         });
     }
 
-    function mapCard(map) {
-        const card = el('div', 'map-card');
+    function mapRow(map) {
+        const row = el('div', 'map-row');
 
         if (map.thumbnailUrl) {
             const img = el('img', 'map-thumb');
             img.src = map.thumbnailUrl;
-            img.alt = map.name;
+            img.alt = '';
             img.loading = 'lazy';
             img.addEventListener('error', function () {
                 img.style.display = 'none';
             });
-            card.appendChild(img);
+            row.appendChild(img);
         }
 
-        card.appendChild(el('div', 'map-name', map.name));
-        card.appendChild(
+        const info = el('div', 'map-info');
+        info.appendChild(el('div', 'map-name', map.name));
+        info.appendChild(
             el('div', 'map-author', map.authorName ? 'by ' + map.authorName : '')
         );
+        row.appendChild(info);
 
-        const btn = el('button', 'vote-btn');
+        const btn = el('button', 'vote-btn vote-btn-sm');
         const voted = myVotes.has(map.mapUid);
         setBtn(btn, voted, map.votes);
         btn.addEventListener('click', function () {
             toggleVote(map.mapUid, btn);
         });
-        card.appendChild(btn);
+        row.appendChild(btn);
 
-        return card;
+        return row;
     }
 
     function setBtn(btn, voted, count) {

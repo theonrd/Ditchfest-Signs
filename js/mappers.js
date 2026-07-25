@@ -53,7 +53,7 @@
         mappers.forEach(function (m, i) {
             const row = el('tr');
             row.appendChild(el('td', 'lb-rank', String(i + 1)));
-            row.appendChild(el('td', null, m.name || m.accountId));
+            row.appendChild(el('td', null, m.name || 'Unknown mapper'));
             row.appendChild(el('td', 'lb-votes', String(m.votes)));
             tbody.appendChild(row);
         });

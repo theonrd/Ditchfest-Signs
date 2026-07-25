@@ -30,6 +30,48 @@ body::before {
     pointer-events: none;
 }
 
+.nav-bar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+}
+
+.nav-link {
+    color: #aaaaaa;
+    text-decoration: none;
+    font-size: 0.95rem;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.nav-link:hover {
+    color: #fff;
+}
+
+.nav-link.active {
+    color: #fff;
+    background: #1a1a1a;
+    border: 1px solid #444;
+}
+
+.page-placeholder {
+    text-align: center;
+    margin: 80px auto;
+}
+
+.page-title {
+    color: #fff;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
 .auth-bar {
     position: absolute;
     top: 20px;
@@ -38,6 +80,21 @@ body::before {
     align-items: center;
     gap: 12px;
     z-index: 10;
+}
+
+/* On narrow screens, let the two corner bars flow normally instead of
+   overlapping in the top corners. */
+@media (max-width: 760px) {
+    .nav-bar,
+    .auth-bar {
+        position: static;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .auth-bar {
+        margin-top: 10px;
+    }
 }
 
 .auth-user {

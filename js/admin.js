@@ -49,7 +49,6 @@
     function render(admins) {
         const root = document.getElementById('admin-root');
         root.innerHTML = '';
-        root.appendChild(el('h1', 'page-title', 'Admin panel'));
 
         const card = el('div', 'admin-card');
 

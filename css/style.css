@@ -498,6 +498,29 @@ a.auth-btn {
     text-decoration: none;
 }
 
+/* Admin status badge — shown only to admins (e.g. on the profile card) */
+.admin-badge {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 6px 16px;
+    background: #2e7d32;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.admin-badge::before {
+    content: "★ ";
+}
+
+.admin-badge:hover {
+    background: #388e3c;
+}
+
 /* --- Admin panel --- */
 .admin-card {
     max-width: 560px;

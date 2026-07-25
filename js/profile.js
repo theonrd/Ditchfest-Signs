@@ -78,15 +78,16 @@
             });
     }
 
-    // Show an "Admin panel" link on the card, only for admins.
+    // Show an "Admin" badge on the card — only admins see it. It signals admin
+    // status and doubles as the entry to the admin page.
     function showAdminLink() {
         const card = document.getElementById('profile-card');
         if (!card || document.getElementById('profile-admin-link')) return;
         const link = document.createElement('a');
-        link.className = 'auth-btn';
+        link.className = 'admin-badge';
         link.id = 'profile-admin-link';
         link.href = 'admin.html';
-        link.textContent = 'Admin panel';
+        link.textContent = 'Admin';
         card.appendChild(link);
     }
 

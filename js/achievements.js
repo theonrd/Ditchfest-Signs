@@ -18,7 +18,8 @@
         const item = el('div', 'ach-item');
         // The Worker sends the whole catalog with an `earned` flag; anything
         // without one (e.g. a freshly unlocked badge) counts as earned.
-        if (a.earned === false) item.classList.add('locked');
+        const earned = a.earned !== false;
+        item.classList.add(earned ? 'earned' : 'locked');
 
         // The unlock condition is a hover tooltip (CSS, .ach-item::after) so the
         // card stays short whether or not you have the badge.
@@ -32,6 +33,11 @@
         const body = el('div', 'ach-body');
         body.appendChild(el('div', 'ach-name', a.name || a.code));
         if (a.description) body.appendChild(el('div', 'ach-desc', a.description));
+        // Spelled out rather than left to colour alone — on a dark theme a
+        // greyed-out card reads a lot like a normal one.
+        body.appendChild(
+            el('div', 'ach-status', earned ? '✓ Unlocked' : '🔒 Locked')
+        );
         item.appendChild(body);
 
         return item;

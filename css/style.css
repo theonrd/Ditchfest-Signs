@@ -703,15 +703,48 @@ a.auth-btn {
     background-color: rgba(255, 255, 255, 0.02);
 }
 
-/* Not earned yet. Drained of colour but fully opaque — a locked badge should
-   read as "still to get", not as disabled UI you can barely see. */
+/* Earned: green, the same colour a cast vote uses elsewhere on the site. */
+.ach-item.earned {
+    border-color: #2e7d32;
+    background-color: rgba(46, 125, 50, 0.12);
+}
+
+/* Not earned yet. Fully opaque — a locked badge should read as "still to get",
+   not as disabled UI you can barely see — but flat, dashed and colourless so it
+   cannot be mistaken for an earned one at a glance. */
 .ach-item.locked {
-    filter: grayscale(1);
     border-style: dashed;
+    border-color: #3a3a3a;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+/* Only the emoji is desaturated; greying the whole card would drag the tooltip
+   down with it. */
+.ach-item.locked .ach-icon {
+    filter: grayscale(1) brightness(0.8);
 }
 
 .ach-item.locked .ach-name {
-    color: #999;
+    color: #8a8a8a;
+}
+
+.ach-item.locked .ach-desc {
+    color: #5c5c5c;
+}
+
+.ach-status {
+    margin-top: 5px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.ach-item.earned .ach-status {
+    color: #81c784;
+}
+
+.ach-item.locked .ach-status {
+    color: #6b6b6b;
 }
 
 /* Unlock condition on hover (data-hint is set in js/achievements.js) */

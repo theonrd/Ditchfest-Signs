@@ -1,3 +1,9 @@
+html {
+    /* Reserve the scrollbar track on every page so centred content (the logo)
+       does not shift horizontally between short and scrollable pages. */
+    scrollbar-gutter: stable;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -129,14 +135,24 @@ body::before {
 }
 
 .logo-container {
-    text-align: center;
+    display: flex;
+    justify-content: center;
     margin-bottom: 20px;
     margin-top: 30px;
 }
 
-.main-logo {
-    max-width: 300px;
+/* The logo is wrapped in a link on every page; keep the anchor from adding
+   inline-baseline slack so the logo sits identically page to page. */
+.logo-container a {
+    display: block;
     width: 90%;
+    max-width: 300px;
+    line-height: 0;
+}
+
+.main-logo {
+    display: block;
+    width: 100%;
     height: auto;
     opacity: 1.0;
 }
@@ -201,6 +217,10 @@ footer {
     border-radius: 5px;
     opacity: 0;
     transition: opacity 0.3s;
+    /* Invisible but still laid out — without this it swallows clicks on the
+       nav links it overlaps once the nav bar is centred on narrow screens. */
+    pointer-events: none;
+    z-index: 20;
 }
 
 .filter-buttons {

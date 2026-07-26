@@ -51,10 +51,23 @@
 
         const tbody = el('tbody');
         mappers.forEach(function (m, i) {
-            const row = el('tr');
+            const href = 'mapper.html?id=' + encodeURIComponent(m.accountId);
+
+            const row = el('tr', 'lb-link');
             row.appendChild(el('td', 'lb-rank', String(i + 1)));
-            row.appendChild(el('td', null, m.name || 'Unknown mapper'));
+
+            // The name is a real link (middle-click, "open in new tab", status
+            // bar preview all work); the rest of the row just forwards to it.
+            const nameCell = el('td');
+            const link = el('a', 'lb-name', m.name || 'Unknown mapper');
+            link.href = href;
+            nameCell.appendChild(link);
+            row.appendChild(nameCell);
+
             row.appendChild(el('td', 'lb-votes', String(m.votes)));
+            row.addEventListener('click', function (e) {
+                if (e.target !== link) window.location.href = href;
+            });
             tbody.appendChild(row);
         });
         table.appendChild(tbody);

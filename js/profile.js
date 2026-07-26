@@ -32,6 +32,14 @@
             '<span class="profile-label">Account ID</span>' +
             '<span class="profile-value profile-mono">' + escapeHtml(user.accountId) + '</span>' +
             '</div>' +
+            '<div class="profile-links">' +
+            '<a class="auth-btn" href="mapper.html?id=' +
+            encodeURIComponent(user.accountId) +
+            '">Моя страница маппера</a>' +
+            '<a class="auth-btn" href="onboarding.html">Пройти онбординг</a>' +
+            '</div>' +
+            '<h2 class="profile-section">Достижения</h2>' +
+            '<div id="profile-achievements"></div>' +
             '<button class="auth-btn" id="profile-logout">Logout</button>';
         document
             .getElementById('profile-logout')
@@ -39,6 +47,23 @@
                 window.tmAuth.logout();
                 render();
             });
+        // Achievements come from /api/me (confirmSession) — until it answers,
+        // show a placeholder rather than an empty gap.
+        renderAchievements(null, 'Загружаем…');
+    }
+
+    // The Worker sends the full definition of every earned achievement, so the
+    // catalog can grow without touching this page.
+    function renderAchievements(list, emptyText) {
+        const box = document.getElementById('profile-achievements');
+        if (!box) return;
+        box.innerHTML = '';
+        box.appendChild(
+            window.tmAchievements.grid(
+                list,
+                emptyText || 'Пока пусто. Пройдите онбординг — там дают ачивку.'
+            )
+        );
     }
 
     function render() {
@@ -71,10 +96,13 @@
                 return res.json();
             })
             .then(function (data) {
-                if (data && data.isAdmin) showAdminLink();
+                if (!data) return;
+                renderAchievements(data.achievements);
+                if (data.isAdmin) showAdminLink();
             })
             .catch(function () {
                 // Network error — leave the locally-decoded view as-is.
+                renderAchievements(null, 'Не удалось загрузить достижения.');
             });
     }
 

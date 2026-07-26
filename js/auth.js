@@ -15,6 +15,10 @@
     const WORKER_URL = 'https://tm-votes.onrd.workers.dev';
 
     const TOKEN_KEY = 'tm_token';
+    // Where to send the user after login. The Worker always bounces back to the
+    // site root, which would drop someone who started on e.g. the onboarding
+    // page into the gallery instead.
+    const RETURN_KEY = 'tm_return';
 
     // ── Token storage ───────────────────────────────────────────────────────
     function getToken() {
@@ -61,7 +65,31 @@
 
     // ── Actions ─────────────────────────────────────────────────────────────
     function login() {
+        try {
+            sessionStorage.setItem(
+                RETURN_KEY,
+                window.location.pathname + window.location.search
+            );
+        } catch (e) {
+            // Private mode / storage disabled — we just lose the return path.
+        }
         window.location.href = WORKER_URL + '/auth/login';
+    }
+
+    // Send the user back to the page they pressed Login on. Only ever a
+    // same-origin relative path we wrote ourselves, and never a re-navigation
+    // to the page we are already on.
+    function returnToStartPage() {
+        let back = null;
+        try {
+            back = sessionStorage.getItem(RETURN_KEY);
+            sessionStorage.removeItem(RETURN_KEY);
+        } catch (e) {
+            return;
+        }
+        if (!back || back.charAt(0) !== '/' || back.charAt(1) === '/') return;
+        if (back === window.location.pathname + window.location.search) return;
+        window.location.replace(back);
     }
 
     function logout() {
@@ -91,6 +119,7 @@
                 window.location.pathname + window.location.search
             );
         }
+        if (token) returnToStartPage();
     }
 
     // ── UI ──────────────────────────────────────────────────────────────────

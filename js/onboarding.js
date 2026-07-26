@@ -1,41 +1,25 @@
-// Onboarding (onboarding.html): guided first-time voting, one Ditchfest edition
-// per screen instead of the wall of ~27 collapsible groups on voting.html.
+// Onboarding (onboarding.html): guided first-time voting, one Ditchfest
+// edition per screen instead of the wall of ~27 groups on voting.html.
 //
-// Nothing is kept in the browser: likes go to /api/vote immediately and each
+// Nothing lives in the browser: likes go to /api/vote immediately and each
 // finished edition is marked with /api/onboarding/step, so closing the tab
 // mid-run loses nothing — the page resumes on the first unfinished edition.
 // Walking through all of them unlocks an achievement.
-//
-// Relies on window.tmAuth (auth.js) and window.tmAchievements (achievements.js).
 
 (function () {
-    const WORKER_URL = window.tmAuth.WORKER_URL;
+    const el = window.tm.el;
 
-    let editions = [];        // oldest edition first, only ones that have maps
-    let done = new Set();     // campaignIds already walked through
-    let myVotes = new Set();  // mapUids this player has liked
-    let index = 0;            // edition currently on screen
-
-    function el(tag, className, text) {
-        const node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text != null) node.textContent = text;
-        return node;
-    }
-
-    function authHeaders() {
-        const token = window.tmAuth.getToken();
-        return token ? { Authorization: 'Bearer ' + token } : {};
-    }
+    let editions = [];       // oldest edition first, only ones that have maps
+    let done = new Set();    // campaignIds already walked through
+    let myVotes = new Set(); // mapUids this player has liked
+    let index = 0;           // edition currently on screen
 
     function root() {
         return document.getElementById('onboarding-root');
     }
 
-    // Session died mid-flow: drop the dead token and ask for a fresh login
-    // rather than silently failing every click.
     function sessionExpired() {
-        window.tmAuth.logout();
+        window.tm.logout();
         renderSignIn('Your session expired. Sign in again to continue.');
     }
 
@@ -59,18 +43,10 @@
         if (note) card.appendChild(el('p', 'ob-note', note));
 
         const btn = el('button', 'auth-btn', 'Login with Ubisoft');
-        btn.addEventListener('click', function () {
-            window.tmAuth.login();
-        });
+        btn.addEventListener('click', window.tm.login);
         card.appendChild(btn);
 
         box.appendChild(card);
-    }
-
-    function renderMessage(text) {
-        const box = root();
-        box.innerHTML = '';
-        box.appendChild(el('p', 'subtitle', text));
     }
 
     function renderStep() {
@@ -86,8 +62,7 @@
         );
         const bar = el('div', 'ob-bar');
         const fill = el('div', 'ob-bar-fill');
-        fill.style.width =
-            Math.round((done.size / editions.length) * 100) + '%';
+        fill.style.width = Math.round((done.size / editions.length) * 100) + '%';
         bar.appendChild(fill);
         head.appendChild(bar);
         head.appendChild(
@@ -169,7 +144,8 @@
         const toMappers = el('a', 'auth-btn', 'See the Mappers top');
         toMappers.href = 'top-mappers.html';
         links.appendChild(toMappers);
-        const user = window.tmAuth.getUser();
+
+        const user = window.tm.getUser();
         if (user) {
             const toMe = el('a', 'auth-btn', 'My achievements');
             toMe.href = 'mapper.html?id=' + encodeURIComponent(user.accountId);
@@ -205,8 +181,7 @@
         );
         card.appendChild(info);
 
-        const mark = el('div', 'ob-mark', '+');
-        card.appendChild(mark);
+        card.appendChild(el('div', 'ob-mark', '+'));
 
         setCard(card, myVotes.has(map.mapUid));
         card.addEventListener('click', function () {
@@ -230,26 +205,17 @@
         setCard(card, value);
 
         try {
-            const res = await fetch(WORKER_URL + '/api/vote', {
-                method: 'POST',
-                headers: Object.assign(
-                    { 'Content-Type': 'application/json' },
-                    authHeaders()
-                ),
-                body: JSON.stringify({ mapUid: mapUid, value: value }),
+            const data = await window.tm.api('/api/vote', {
+                body: { mapUid: mapUid, value: value },
             });
-            if (res.status === 401) {
+            if (data.voted) myVotes.add(mapUid);
+            else myVotes.delete(mapUid);
+            setCard(card, !!data.voted);
+        } catch (e) {
+            if (e.status === 401) {
                 sessionExpired();
                 return;
             }
-            const data = await res.json();
-            if (data.voted) {
-                myVotes.add(mapUid);
-            } else {
-                myVotes.delete(mapUid);
-            }
-            setCard(card, !!data.voted);
-        } catch (e) {
             setCard(card, !value); // network died — undo the optimistic flip
         } finally {
             card.disabled = false;
@@ -263,27 +229,20 @@
         const edition = editions[index];
         button.disabled = true;
         try {
-            const res = await fetch(WORKER_URL + '/api/onboarding/step', {
-                method: 'POST',
-                headers: Object.assign(
-                    { 'Content-Type': 'application/json' },
-                    authHeaders()
-                ),
-                body: JSON.stringify({ campaignId: edition.campaignId }),
+            const data = await window.tm.api('/api/onboarding/step', {
+                body: { campaignId: edition.campaignId },
             });
-            if (res.status === 401) {
-                sessionExpired();
-                return;
-            }
-            const data = await res.json();
             done = new Set(data.done || []);
-
             if (data.completed) {
                 renderFinish(data.newAchievements);
                 return;
             }
             advance();
         } catch (e) {
+            if (e.status === 401) {
+                sessionExpired();
+                return;
+            }
             button.disabled = false;
             // Mark it locally anyway so a flaky network doesn't trap them on
             // one screen; the next successful step re-syncs the real list.
@@ -325,25 +284,22 @@
     async function load() {
         if (!root()) return;
 
-        if (!window.tmAuth.isLoggedIn()) {
+        if (!window.tm.isLoggedIn()) {
             renderSignIn(null);
             return;
         }
 
-        renderMessage('Loading…');
+        window.tm.message(root(), 'Loading…');
 
         let data;
         try {
-            const res = await fetch(WORKER_URL + '/api/onboarding', {
-                headers: authHeaders(),
-            });
-            if (res.status === 401) {
+            data = await window.tm.api('/api/onboarding');
+        } catch (e) {
+            if (e.status === 401) {
                 sessionExpired();
                 return;
             }
-            data = await res.json();
-        } catch (e) {
-            renderMessage('Failed to load the maps. Try again later.');
+            window.tm.message(root(), 'Failed to load the maps. Try again later.');
             return;
         }
 
@@ -352,7 +308,10 @@
         myVotes = new Set(data.myVotes || []);
 
         if (!editions.length) {
-            renderMessage('The map catalog is syncing. Please check back soon.');
+            window.tm.message(
+                root(),
+                'The map catalog is syncing. Please check back soon.'
+            );
             return;
         }
         if (data.completed) {

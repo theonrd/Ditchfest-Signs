@@ -10,40 +10,17 @@
 
 <body>
         <div class="content-wrapper">
-                <nav class="nav-bar">
-                        <a href="index.html" class="nav-link">Signs</a>
-                        <a href="voting.html" class="nav-link">Voting</a>
-                        <a href="top-players.html" class="nav-link">Players</a>
-                        <a href="top-mappers.html" class="nav-link active">Mappers</a>
-                </nav>
-                <div class="auth-bar" id="auth-bar"></div>
-                <div class="logo-container">
-                        <a href="index.html">
-                                <img src="res/DitchFest_logo.svg" alt="Ditchfest Signs" class="main-logo">
-                        </a>
-                </div>
+                <!-- Nav, auth widget and logo are rendered by js/layout.js -->
+                <div id="site-header"></div>
 
                 <div id="mappers-root"></div>
         </div>
 
-        <footer>
-                <div class="discord-links">
-                        <a href="https://discord.gg/VWaTmrXmh5" target="_blank" class="discord-link-item">
-                                <img src="res/discord-sign-logo.svg" alt="Ditchfest" class="discord-icon">
-                                <span>Ditchfest (EN)</span>
-                        </a>
-                        <a href="https://discord.gg/TaPZBp7mTS" target="_blank" class="discord-link-item">
-                                <img src="res/discord-sign-logo.svg" alt="Trackmania Russian Community" class="discord-icon">
-                                <span>Trackmania Russian Community (RU)</span>
-                        </a>
-                </div>
-                <p class="developer-info">Credits: onrd.., Soba, Rezzn, Damned_Light</p>
-                <div class="copyright">
-                        Fuck you ditchfest mappers &copy; 2025-2026
-                </div>
-        </footer>
+        <footer id="site-footer"></footer>
+
+        <script src="./js/core.js"></script>
+        <script src="./js/layout.js"></script>
         <script src="./js/background.js"></script>
-        <script src="./js/auth.js"></script>
         <script src="./js/mappers.js"></script>
 </body>
 

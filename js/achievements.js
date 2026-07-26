@@ -1,28 +1,23 @@
-// Shared achievement rendering. Badges show up on account pages and on the
-// onboarding finish screen, so the markup lives in one place. The catalog
-// itself (names, descriptions, icons) comes from the Worker — this file only
-// draws whatever it is handed.
+// Achievement badges, drawn the same way on account pages and on the
+// onboarding finish screen.
 //
-// window.tmAchievements.grid(list, emptyText) -> element
-// window.tmAchievements.card(achievement)     -> element
+// The catalog lives in the Worker (src/achievements.ts) and arrives complete:
+// every badge, with `earned` telling us which ones this account has. Locked
+// ones are shown too — greyed out, with the unlock condition on hover — so
+// there is something to chase. This file never decides what a badge means.
 
 (function () {
-    function el(tag, className, text) {
-        const node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text != null) node.textContent = text;
-        return node;
-    }
+    const el = window.tm.el;
 
     function card(a) {
         const item = el('div', 'ach-item');
-        // The Worker sends the whole catalog with an `earned` flag; anything
-        // without one (e.g. a freshly unlocked badge) counts as earned.
+        // Anything without an `earned` flag (a freshly unlocked badge handed
+        // to us by /api/onboarding/step) counts as earned.
         const earned = a.earned !== false;
         item.classList.add(earned ? 'earned' : 'locked');
 
-        // The unlock condition is a hover tooltip (CSS, .ach-item::after) so the
-        // card stays short whether or not you have the badge.
+        // The condition is a hover tooltip (CSS, .ach-item::after) so the card
+        // stays short whether or not you have the badge.
         if (a.hint) {
             item.dataset.hint = a.hint;
             item.setAttribute('aria-label', (a.name || a.code) + ' — ' + a.hint);

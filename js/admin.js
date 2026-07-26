@@ -1,59 +1,42 @@
-// Admin panel (admin.html). Lets an admin add/remove other admins by their
-// Ubisoft/Trackmania account ID. All actions are gated server-side (the API
-// returns 403 for non-admins); this page just checks first for a clean UI.
-// Relies on window.tmAuth (auth.js, loaded first).
+// Admin panel (admin.html): add and remove admins by Ubisoft account ID.
+// Reachable only from your own account page, and every action is gated
+// server-side (the API answers 403 to non-admins) — this page checks first
+// purely so it can show a clean message instead of a broken list.
 
 (function () {
-    const WORKER_URL = window.tmAuth.WORKER_URL;
-
-    function el(tag, className, text) {
-        const node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text != null) node.textContent = text;
-        return node;
-    }
-
-    function authHeaders() {
-        const token = window.tmAuth.getToken();
-        return token ? { Authorization: 'Bearer ' + token } : {};
-    }
+    const el = window.tm.el;
 
     async function load() {
         const root = document.getElementById('admin-root');
         if (!root) return;
-        root.innerHTML = '';
 
-        if (!window.tmAuth.isLoggedIn()) {
-            root.appendChild(el('p', 'subtitle', 'Log in to access the admin panel.'));
+        if (!window.tm.isLoggedIn()) {
+            window.tm.message(root, 'Log in to access the admin panel.');
             return;
         }
-        root.appendChild(el('p', 'subtitle', 'Loading…'));
+        window.tm.message(root, 'Loading…');
 
         try {
-            const res = await fetch(WORKER_URL + '/api/admins', {
-                headers: authHeaders(),
-            });
-            if (res.status === 403) {
-                root.innerHTML = '';
-                root.appendChild(el('p', 'subtitle', 'Access denied — admins only.'));
-                return;
-            }
-            const data = await res.json();
-            render(data.admins || []);
+            const data = await window.tm.api('/api/admins');
+            render(root, data.admins || []);
         } catch (e) {
-            root.innerHTML = '';
-            root.appendChild(el('p', 'subtitle', 'Failed to load. Try again later.'));
+            if (e.status === 403) {
+                window.tm.message(root, 'Access denied — admins only.');
+            } else if (e.status === 401) {
+                window.tm.sessionExpired();
+            } else {
+                window.tm.message(root, 'Failed to load. Try again later.');
+            }
         }
     }
 
-    function render(admins) {
-        const root = document.getElementById('admin-root');
+    function render(root, admins) {
         root.innerHTML = '';
 
         const card = el('div', 'admin-card');
-
-        const label = el('label', 'admin-label', 'Add admin by Ubisoft account ID');
-        card.appendChild(label);
+        card.appendChild(
+            el('label', 'admin-label', 'Add admin by Ubisoft account ID')
+        );
 
         const addRow = el('div', 'admin-add');
         const input = el('input', 'admin-input');
@@ -62,12 +45,12 @@
         const btn = el('button', 'auth-btn', 'Add');
         const msg = el('div', 'admin-msg');
 
-        const doAdd = function () {
+        const submit = function () {
             addAdmin(input, btn, msg);
         };
-        btn.addEventListener('click', doAdd);
+        btn.addEventListener('click', submit);
         input.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') doAdd();
+            if (e.key === 'Enter') submit();
         });
 
         addRow.appendChild(input);
@@ -97,6 +80,7 @@
         info.appendChild(el('div', 'admin-id', a.accountId));
         row.appendChild(info);
 
+        // The root admin comes from a Worker var and cannot be removed here.
         if (!a.isRoot) {
             const rm = el('button', 'auth-btn admin-remove', 'Remove');
             rm.addEventListener('click', function () {
@@ -110,29 +94,18 @@
     async function addAdmin(input, btn, msg) {
         const accountId = input.value.trim();
         if (!accountId) return;
+
         btn.disabled = true;
         msg.className = 'admin-msg';
         msg.textContent = 'Adding…';
+
         try {
-            const res = await fetch(WORKER_URL + '/api/admins', {
-                method: 'POST',
-                headers: Object.assign(
-                    { 'Content-Type': 'application/json' },
-                    authHeaders()
-                ),
-                body: JSON.stringify({ accountId: accountId }),
-            });
-            const d = await res.json();
-            if (res.ok) {
-                input.value = '';
-                load();
-            } else {
-                msg.className = 'admin-msg admin-err';
-                msg.textContent = errorText(d.error, res.status);
-            }
+            await window.tm.api('/api/admins', { body: { accountId: accountId } });
+            input.value = '';
+            load(); // re-read the list rather than patch it locally
         } catch (e) {
             msg.className = 'admin-msg admin-err';
-            msg.textContent = 'Network error.';
+            msg.textContent = errorText(e);
         } finally {
             btn.disabled = false;
         }
@@ -141,26 +114,17 @@
     async function removeAdmin(accountId, btn) {
         btn.disabled = true;
         try {
-            const res = await fetch(WORKER_URL + '/api/admins/remove', {
-                method: 'POST',
-                headers: Object.assign(
-                    { 'Content-Type': 'application/json' },
-                    authHeaders()
-                ),
-                body: JSON.stringify({ accountId: accountId }),
+            await window.tm.api('/api/admins/remove', {
+                body: { accountId: accountId },
             });
-            if (res.ok) {
-                load();
-            } else {
-                btn.disabled = false;
-            }
+            load();
         } catch (e) {
             btn.disabled = false;
         }
     }
 
-    function errorText(code, status) {
-        switch (code) {
+    function errorText(e) {
+        switch (e.message) {
             case 'unknown_account':
                 return 'No Trackmania account with that ID was found.';
             case 'missing_accountId':
@@ -170,7 +134,7 @@
             case 'forbidden':
                 return 'Access denied.';
             default:
-                return 'Error: ' + (code || status);
+                return 'Error: ' + e.message;
         }
     }
 

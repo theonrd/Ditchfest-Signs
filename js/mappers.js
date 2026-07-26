@@ -1,40 +1,30 @@
-// Mappers page (top-mappers.html): leaderboard of mappers ranked by the total
-// number of "+" votes across all of their maps. Relies on window.tmAuth for the
-// Worker URL (auth.js, loaded first). Public — no login required to view.
+// Mappers leaderboard (top-mappers.html): mappers ranked by the total number
+// of "+" votes across all of their maps. Public — no login required. Each row
+// leads to that mapper's account page.
 
 (function () {
-    const WORKER_URL = window.tmAuth.WORKER_URL;
-
-    function el(tag, className, text) {
-        const node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text != null) node.textContent = text;
-        return node;
-    }
+    const el = window.tm.el;
 
     async function load() {
         const root = document.getElementById('mappers-root');
         if (!root) return;
-        root.innerHTML = '';
-        root.appendChild(el('p', 'subtitle', 'Loading…'));
+        window.tm.message(root, 'Loading…');
 
         try {
-            const res = await fetch(WORKER_URL + '/api/results/mappers');
-            const data = await res.json();
-            render(data.mappers || []);
+            const data = await window.tm.api('/api/results/mappers');
+            render(root, data.mappers || []);
         } catch (e) {
-            root.innerHTML = '';
-            root.appendChild(el('p', 'subtitle', 'Failed to load results. Try again later.'));
+            window.tm.message(root, 'Failed to load results. Try again later.');
         }
     }
 
-    function render(mappers) {
-        const root = document.getElementById('mappers-root');
+    function render(root, mappers) {
         root.innerHTML = '';
 
         if (!mappers.length) {
-            root.appendChild(
-                el('p', 'subtitle', 'No votes yet. Head to the Voting tab to get started.')
+            window.tm.message(
+                root,
+                'No votes yet. Head to the Voting tab to get started.'
             );
             return;
         }
@@ -51,28 +41,32 @@
 
         const tbody = el('tbody');
         mappers.forEach(function (m, i) {
-            const href = 'mapper.html?id=' + encodeURIComponent(m.accountId);
-
-            const row = el('tr', 'lb-link');
-            row.appendChild(el('td', 'lb-rank', String(i + 1)));
-
-            // The name is a real link (middle-click, "open in new tab", status
-            // bar preview all work); the rest of the row just forwards to it.
-            const nameCell = el('td');
-            const link = el('a', 'lb-name', m.name || 'Unknown mapper');
-            link.href = href;
-            nameCell.appendChild(link);
-            row.appendChild(nameCell);
-
-            row.appendChild(el('td', 'lb-votes', String(m.votes)));
-            row.addEventListener('click', function (e) {
-                if (e.target !== link) window.location.href = href;
-            });
-            tbody.appendChild(row);
+            tbody.appendChild(row(m, i + 1));
         });
         table.appendChild(tbody);
 
         root.appendChild(table);
+    }
+
+    function row(m, place) {
+        const href = 'mapper.html?id=' + encodeURIComponent(m.accountId);
+
+        const tr = el('tr', 'lb-link');
+        tr.appendChild(el('td', 'lb-rank', String(place)));
+
+        // The name is a real link (middle-click, "open in new tab" and the
+        // status-bar preview all work); the rest of the row forwards to it.
+        const nameCell = el('td');
+        const link = el('a', 'lb-name', m.name || 'Unknown mapper');
+        link.href = href;
+        nameCell.appendChild(link);
+        tr.appendChild(nameCell);
+
+        tr.appendChild(el('td', 'lb-votes', String(m.votes)));
+        tr.addEventListener('click', function (e) {
+            if (e.target !== link) window.location.href = href;
+        });
+        return tr;
     }
 
     document.addEventListener('DOMContentLoaded', load);

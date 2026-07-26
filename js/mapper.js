@@ -1,72 +1,88 @@
 // Account page (mapper.html?id=<accountId>): nickname, place in the Mappers
-// leaderboard, achievements and every map they have in the catalog. Linked from
-// the leaderboard rows in js/mappers.js and from the auth bar. No login needed
-// to view — this doubles as the player's own page (there is no separate profile
-// page), so opening your own adds logout and, for admins, the admin entry.
-// Relies on window.tmAuth for the Worker URL and window.tmAchievements for the
-// badge markup (both loaded first).
+// leaderboard, achievements and every map in the catalog by this account.
+//
+// This is also your own page — there is no separate profile page. Opening your
+// own adds logout and, for admins, the way into the admin panel; to everyone
+// else it looks like any other account page.
 
 (function () {
-    const WORKER_URL = window.tmAuth.WORKER_URL;
+    const el = window.tm.el;
 
-    function el(tag, className, text) {
-        const node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text != null) node.textContent = text;
-        return node;
+    function root() {
+        return document.getElementById('mapper-root');
     }
 
+    /** A dead end (no id, unknown account, network trouble) plus a way back. */
     function message(text) {
-        const root = document.getElementById('mapper-root');
-        root.innerHTML = '';
-        root.appendChild(el('p', 'subtitle', text));
-        const back = el('p', 'subtitle');
+        const box = root();
+        window.tm.message(box, text);
+        box.appendChild(backLink());
+    }
+
+    function backLink() {
+        const wrap = el('p', 'subtitle');
         const link = el('a', 'mapper-back', '← Back to the Mappers top');
         link.href = 'top-mappers.html';
-        back.appendChild(link);
-        root.appendChild(back);
+        wrap.appendChild(link);
+        return wrap;
     }
 
     async function load() {
-        const root = document.getElementById('mapper-root');
-        if (!root) return;
+        if (!root()) return;
 
-        const id = new URLSearchParams(window.location.search).get('id');
+        const id = window.tm.param('id');
         if (!id) {
-            message('No mapper selected.');
+            message('No account selected.');
             return;
         }
 
-        root.innerHTML = '';
-        root.appendChild(el('p', 'subtitle', 'Loading…'));
-
+        window.tm.message(root(), 'Loading…');
         try {
-            const res = await fetch(
-                WORKER_URL + '/api/mapper?id=' + encodeURIComponent(id)
+            const data = await window.tm.api(
+                '/api/mapper?id=' + encodeURIComponent(id)
             );
-            if (res.status === 404) {
-                message('No such Trackmania account.');
-                return;
-            }
-            const data = await res.json();
             render(data);
         } catch (e) {
-            message('Failed to load this mapper. Try again later.');
+            message(
+                e.status === 404
+                    ? 'No such Trackmania account.'
+                    : 'Failed to load this account. Try again later.'
+            );
         }
     }
 
     function render(m) {
-        const root = document.getElementById('mapper-root');
-        root.innerHTML = '';
+        const box = root();
+        box.innerHTML = '';
+        document.title = (m.name || 'Account') + ' — Ditchfest Signs';
 
-        document.title = (m.name || 'Mapper') + ' — Ditchfest Signs';
+        box.appendChild(headerCard(m));
 
-        // ── Header card: who they are and where they stand ──────────────────
+        box.appendChild(el('h2', 'mapper-section', 'Achievements'));
+        box.appendChild(
+            window.tmAchievements.grid(m.achievements, 'Nothing unlocked yet.')
+        );
+
+        box.appendChild(el('h2', 'mapper-section', 'Maps'));
+        if (!m.maps.length) {
+            box.appendChild(el('p', 'ach-empty', 'No maps in the catalog.'));
+        } else {
+            const list = el('div', 'mapper-maps');
+            m.maps.forEach(function (map) {
+                list.appendChild(mapRow(map));
+            });
+            box.appendChild(list);
+        }
+
+        box.appendChild(backLink());
+    }
+
+    function headerCard(m) {
         const card = el('div', 'mapper-card');
         card.appendChild(el('h1', 'mapper-name', m.name || 'Unknown player'));
 
         const stats = el('div', 'mapper-stats');
-        // Someone who only votes has no maps and so no place in the top.
+        // Someone who only votes has no maps, and so no place in the top.
         stats.appendChild(
             m.rank
                 ? stat('#' + m.rank, 'of ' + m.total + ' mappers')
@@ -84,97 +100,7 @@
             card.appendChild(ownerPanel());
             confirmSession();
         }
-        root.appendChild(card);
-
-        // ── Achievements ────────────────────────────────────────────────────
-        root.appendChild(el('h2', 'mapper-section', 'Achievements'));
-        root.appendChild(
-            window.tmAchievements.grid(m.achievements, 'Nothing unlocked yet.')
-        );
-
-        // ── Their maps ──────────────────────────────────────────────────────
-        root.appendChild(el('h2', 'mapper-section', 'Maps'));
-        if (!m.maps.length) {
-            root.appendChild(el('p', 'ach-empty', 'No maps in the catalog.'));
-        } else {
-            const list = el('div', 'mapper-maps');
-            m.maps.forEach(function (map) {
-                list.appendChild(mapRow(map));
-            });
-            root.appendChild(list);
-        }
-
-        const back = el('p', 'subtitle');
-        const link = el('a', 'mapper-back', '← Back to the Mappers top');
-        link.href = 'top-mappers.html';
-        back.appendChild(link);
-        root.appendChild(back);
-    }
-
-    // ── Owner-only bits ─────────────────────────────────────────────────────
-    // Everything below is additive: the page renders identically for visitors,
-    // it just grows a few controls when you are looking at yourself.
-
-    function isOwner(accountId) {
-        const user = window.tmAuth.getUser();
-        return !!user && user.accountId === accountId;
-    }
-
-    function ownerPanel() {
-        const panel = el('div', 'mapper-owner');
-        panel.appendChild(el('div', 'mapper-you', 'This is your page.'));
-
-        const actions = el('div', 'mapper-owner-actions');
-
-        // The only entry point to onboarding — it is deliberately not in the nav.
-        const onboarding = el('a', 'auth-btn', 'Start here');
-        onboarding.href = 'onboarding.html';
-        actions.appendChild(onboarding);
-
-        const logout = el('button', 'auth-btn', 'Logout');
-        logout.addEventListener('click', function () {
-            window.tmAuth.logout();
-            window.location.reload(); // falls back to the public view
-        });
-        actions.appendChild(logout);
-
-        panel.appendChild(actions);
-        return panel;
-    }
-
-    // Verify the token server-side: a dead session must not keep showing owner
-    // controls, and the answer also tells us whether to reveal the admin entry.
-    function confirmSession() {
-        const token = window.tmAuth.getToken();
-        if (!token) return;
-        fetch(WORKER_URL + '/api/me', {
-            headers: { Authorization: 'Bearer ' + token },
-        })
-            .then(function (res) {
-                if (res.status === 401) {
-                    window.tmAuth.logout();
-                    window.location.reload();
-                    return null;
-                }
-                return res.json();
-            })
-            .then(function (data) {
-                if (data && data.isAdmin) showAdminLink();
-            })
-            .catch(function () {
-                // Network error — leave the page as rendered.
-            });
-    }
-
-    // The admin panel is reachable only from your own page; nobody else ever
-    // sees this badge.
-    function showAdminLink() {
-        const actions = document.querySelector('.mapper-owner-actions');
-        if (!actions || document.getElementById('mapper-admin-link')) return;
-        const link = el('a', 'admin-badge', 'Admin');
-        link.id = 'mapper-admin-link';
-        link.href = 'admin.html';
-        actions.appendChild(link);
+        return card;
     }
 
     function stat(value, label) {
@@ -205,6 +131,64 @@
 
         row.appendChild(el('div', 'map-votes', map.votes + ' ✓'));
         return row;
+    }
+
+    // ── Owner-only bits ─────────────────────────────────────────────────────
+    // Additive: the page renders identically for visitors, it just grows a few
+    // controls when you are looking at yourself.
+
+    function isOwner(accountId) {
+        const user = window.tm.getUser();
+        return !!user && user.accountId === accountId;
+    }
+
+    function ownerPanel() {
+        const panel = el('div', 'mapper-owner');
+        panel.appendChild(el('div', 'mapper-you', 'This is your page.'));
+
+        const actions = el('div', 'mapper-owner-actions');
+
+        // The only entry point to onboarding — it is deliberately not in the nav.
+        const onboarding = el('a', 'auth-btn', 'Start here');
+        onboarding.href = 'onboarding.html';
+        actions.appendChild(onboarding);
+
+        const logout = el('button', 'auth-btn', 'Logout');
+        logout.addEventListener('click', function () {
+            window.tm.logout();
+            window.location.reload(); // falls back to the public view
+        });
+        actions.appendChild(logout);
+
+        panel.appendChild(actions);
+        return panel;
+    }
+
+    // Verify the token server-side: a dead session must not keep showing owner
+    // controls, and the answer also says whether to reveal the admin entry.
+    async function confirmSession() {
+        if (!window.tm.getToken()) return;
+        try {
+            const me = await window.tm.api('/api/me');
+            if (me && me.isAdmin) showAdminLink();
+        } catch (e) {
+            if (e.status === 401) {
+                window.tm.logout();
+                window.location.reload();
+            }
+            // Anything else: leave the page as rendered.
+        }
+    }
+
+    // The admin panel is reachable only from your own page; nobody else ever
+    // sees this badge.
+    function showAdminLink() {
+        const actions = document.querySelector('.mapper-owner-actions');
+        if (!actions || document.getElementById('mapper-admin-link')) return;
+        const link = el('a', 'admin-badge', 'Admin');
+        link.id = 'mapper-admin-link';
+        link.href = 'admin.html';
+        actions.appendChild(link);
     }
 
     document.addEventListener('DOMContentLoaded', load);

@@ -1,4 +1,4 @@
-// Admin panel (admin.html): add and remove admins by Ubisoft account ID.
+// Admin panel (admin.html): manage admins and linked accounts.
 // Reachable only from your own account page, and every action is gated
 // server-side (the API answers 403 to non-admins) — this page checks first
 // purely so it can show a clean message instead of a broken list.
@@ -17,8 +17,11 @@
         window.tm.message(root, 'Loading…');
 
         try {
-            const data = await window.tm.api('/api/admins');
-            render(root, data.admins || []);
+            const admins = await window.tm.api('/api/admins');
+            const links = await window.tm.api('/api/links');
+            root.innerHTML = '';
+            renderAdmins(root, admins.admins || []);
+            renderLinks(root, links.groups || []);
         } catch (e) {
             if (e.status === 403) {
                 window.tm.message(root, 'Access denied — admins only.');
@@ -30,8 +33,8 @@
         }
     }
 
-    function render(root, admins) {
-        root.innerHTML = '';
+    function renderAdmins(root, admins) {
+        root.appendChild(el('h2', 'admin-section', 'Admins'));
 
         const card = el('div', 'admin-card');
         card.appendChild(

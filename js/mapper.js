@@ -94,9 +94,19 @@
         );
         card.appendChild(stats);
 
+        // Linked accounts: everything on this page already counts them as one.
+        if (m.alts && m.alts.length) {
+            const names = m.alts.map(function (a) {
+                return a.displayName || a.accountId;
+            });
+            card.appendChild(
+                el('div', 'mapper-alts', 'also playing as ' + names.join(', '))
+            );
+        }
+
         card.appendChild(el('div', 'mapper-id', m.accountId));
 
-        if (isOwner(m.accountId)) {
+        if (isOwner(m)) {
             card.appendChild(ownerPanel());
             confirmSession();
         }
@@ -137,9 +147,12 @@
     // Additive: the page renders identically for visitors, it just grows a few
     // controls when you are looking at yourself.
 
-    function isOwner(accountId) {
+    // Membership, not equality: accounts an admin linked together are one
+    // person, so signing in on an alternate still opens "your" page.
+    function isOwner(m) {
         const user = window.tm.getUser();
-        return !!user && user.accountId === accountId;
+        if (!user) return false;
+        return (m.members || [m.accountId]).indexOf(user.accountId) !== -1;
     }
 
     function ownerPanel() {

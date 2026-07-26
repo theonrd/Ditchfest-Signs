@@ -1,7 +1,7 @@
-// Shared achievement rendering. Badges show up on the profile card, on public
-// mapper pages and on the onboarding finish screen, so the markup lives in one
-// place. The catalog itself (names, descriptions, icons) comes from the Worker —
-// this file only draws whatever it is handed.
+// Shared achievement rendering. Badges show up on account pages and on the
+// onboarding finish screen, so the markup lives in one place. The catalog
+// itself (names, descriptions, icons) comes from the Worker — this file only
+// draws whatever it is handed.
 //
 // window.tmAchievements.grid(list, emptyText) -> element
 // window.tmAchievements.card(achievement)     -> element

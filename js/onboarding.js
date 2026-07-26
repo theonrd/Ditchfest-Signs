@@ -169,9 +169,12 @@
         const toMappers = el('a', 'auth-btn', 'See the Mappers top');
         toMappers.href = 'top-mappers.html';
         links.appendChild(toMappers);
-        const toProfile = el('a', 'auth-btn', 'My achievements');
-        toProfile.href = 'profile.html';
-        links.appendChild(toProfile);
+        const user = window.tmAuth.getUser();
+        if (user) {
+            const toMe = el('a', 'auth-btn', 'My achievements');
+            toMe.href = 'mapper.html?id=' + encodeURIComponent(user.accountId);
+            links.appendChild(toMe);
+        }
         card.appendChild(links);
 
         box.appendChild(card);

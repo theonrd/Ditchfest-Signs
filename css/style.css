@@ -324,59 +324,6 @@ footer {
     opacity: 1;
 }
 
-.profile-card {
-    max-width: 480px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: rgba(255, 255, 255, 0.025);
-    border: 1px solid #444;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    text-align: center;
-}
-
-.profile-title {
-    margin-top: 0;
-    color: #fff;
-    font-size: 1.5rem;
-}
-
-.profile-hint {
-    color: #aaaaaa;
-    margin-bottom: 24px;
-}
-
-.profile-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    padding: 12px 0;
-    border-bottom: 1px solid #333;
-    text-align: left;
-}
-
-.profile-label {
-    color: #aaaaaa;
-    font-size: 0.9rem;
-}
-
-.profile-value {
-    color: #e0e0e0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.profile-mono {
-    font-family: monospace;
-    font-size: 0.85rem;
-}
-
-.profile-card .auth-btn {
-    margin-top: 24px;
-}
-
 /* --- Voting: collapsible groups per Ditchfest number --- */
 #voting-root {
     max-width: 820px;
@@ -1069,28 +1016,30 @@ a.auth-btn {
     text-align: left;
 }
 
-/* --- Profile extras (achievements + shortcuts) --- */
-.profile-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
+/* Shown only when you open your own account page (js/mapper.js) */
+.mapper-owner {
     margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #333;
 }
 
-/* The card gives every button a top margin; inside the row the gap does that. */
-.profile-links .auth-btn {
-    margin-top: 0;
-}
-
-.profile-section {
-    color: #aaaaaa;
-    font-size: 0.85rem;
+.mapper-you {
+    color: #888;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin: 28px 0 0 0;
+    margin-bottom: 14px;
 }
 
-.profile-card .ach-grid {
-    grid-template-columns: 1fr;
+.mapper-owner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* The badge is a standalone block elsewhere; in this row the gap spaces it. */
+.mapper-owner-actions .admin-badge {
+    margin-top: 0;
 }

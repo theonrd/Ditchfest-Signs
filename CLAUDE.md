@@ -13,12 +13,14 @@
 
 ## Структура репозитория
 - `index.html` — главная страница
-- `voting.html`, `top-mappers.html`, `top-players.html`, `profile.html`, `admin.html` — отдельные страницы
+- `voting.html`, `top-mappers.html`, `top-players.html`, `admin.html` — отдельные страницы
 - `onboarding.html` + `js/onboarding.js` — пошаговое голосование для новичков:
   один выпуск на экране, прогресс хранится на сервере (`/api/onboarding`), в
   конце выдаётся ачивка
-- `mapper.html` + `js/mapper.js` — публичная страница маппера (`?id=<accountId>`),
-  ссылки на неё ведут из строк топа в `js/mappers.js`
+- `mapper.html` + `js/mapper.js` — публичная страница аккаунта (`?id=<accountId>`):
+  и страница маппера из топа, и личный кабинет. Отдельной `profile.html` больше
+  нет. Если открыл свою страницу — добавляются logout и (для админов) вход в
+  `admin.html`; всем остальным она видна как обычная публичная страница.
 - `js/achievements.js` — общий рендер бейджей достижений (`window.tmAchievements`),
   подключается перед скриптом страницы; сами тексты приходят из Worker
 - `js/auth.js` — логин через Ubisoft/Trackmania OAuth, обёртка над Worker (`window.tmAuth`)

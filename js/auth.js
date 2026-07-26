@@ -129,8 +129,12 @@
 
         const user = getUser();
         if (user) {
+            // Your own account page — the same public page everyone else can
+            // open, with owner controls added (js/mapper.js).
             bar.innerHTML =
-                '<a href="profile.html" class="auth-user">' +
+                '<a href="mapper.html?id=' +
+                encodeURIComponent(user.accountId) +
+                '" class="auth-user">' +
                 escapeHtml(user.displayName) +
                 '</a>' +
                 '<button class="auth-btn" id="auth-logout">Logout</button>';

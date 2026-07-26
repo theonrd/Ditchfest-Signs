@@ -107,18 +107,6 @@
             const login = el('button', 'auth-btn', 'Login with Ubisoft');
             login.addEventListener('click', window.tm.login);
             bar.appendChild(login);
-
-            // Logging out here only drops our own token — Ubisoft still has you
-            // signed in, so the next login silently returns the same account.
-            // The only way to pick a different one is to end that session,
-            // which lives on Trackmania's side.
-            const other = el('a', 'auth-switch', 'other account?');
-            other.href = 'https://api.trackmania.com/logout';
-            other.target = '_blank';
-            other.rel = 'noopener';
-            other.title =
-                'Trackmania keeps you signed in. Log out there, then log in here again.';
-            bar.appendChild(other);
             return;
         }
 

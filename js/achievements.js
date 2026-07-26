@@ -16,6 +16,17 @@
 
     function card(a) {
         const item = el('div', 'ach-item');
+        // The Worker sends the whole catalog with an `earned` flag; anything
+        // without one (e.g. a freshly unlocked badge) counts as earned.
+        if (a.earned === false) item.classList.add('locked');
+
+        // The unlock condition is a hover tooltip (CSS, .ach-item::after) so the
+        // card stays short whether or not you have the badge.
+        if (a.hint) {
+            item.dataset.hint = a.hint;
+            item.setAttribute('aria-label', (a.name || a.code) + ' — ' + a.hint);
+        }
+
         item.appendChild(el('div', 'ach-icon', a.icon || '🏆'));
 
         const body = el('div', 'ach-body');
@@ -26,8 +37,6 @@
         return item;
     }
 
-    // Only earned achievements are ever passed in — locked ones are deliberately
-    // not listed, so the section reads as a trophy shelf rather than a to-do list.
     function grid(list, emptyText) {
         if (!list || !list.length) {
             return el('p', 'ach-empty', emptyText || 'No achievements yet.');

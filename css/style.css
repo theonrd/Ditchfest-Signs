@@ -693,6 +693,7 @@ a.auth-btn {
 }
 
 .ach-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -700,6 +701,36 @@ a.auth-btn {
     border: 1px solid #333;
     border-radius: 6px;
     background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Not earned yet. Drained of colour but fully opaque — a locked badge should
+   read as "still to get", not as disabled UI you can barely see. */
+.ach-item.locked {
+    filter: grayscale(1);
+    border-style: dashed;
+}
+
+.ach-item.locked .ach-name {
+    color: #999;
+}
+
+/* Unlock condition on hover (data-hint is set in js/achievements.js) */
+.ach-item[data-hint]:hover::after {
+    content: attr(data-hint);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 6px);
+    padding: 8px 10px;
+    background-color: #111;
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: #e0e0e0;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    z-index: 50;
 }
 
 .ach-icon {

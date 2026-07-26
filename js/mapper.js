@@ -126,7 +126,8 @@
 
         const actions = el('div', 'mapper-owner-actions');
 
-        const onboarding = el('a', 'auth-btn', 'Onboarding');
+        // The only entry point to onboarding — it is deliberately not in the nav.
+        const onboarding = el('a', 'auth-btn', 'Start here');
         onboarding.href = 'onboarding.html';
         actions.appendChild(onboarding);
 

@@ -119,13 +119,6 @@
             'translate(' + Math.max(pad, x) + 'px, ' + Math.max(pad, y) + 'px)';
     }
 
-    // The box is position: fixed, so anything that moves the page under the
-    // cursor would strand it next to a thumbnail that is no longer there.
-    if (canHover) {
-        window.addEventListener('scroll', hidePreview, true);
-        window.addEventListener('blur', hidePreview);
-    }
-
     function attachPreview(thumb, url) {
         if (!canHover) return;
 
@@ -140,6 +133,127 @@
             lastPoint = null;
             hidePreview();
         });
+    }
+
+    // ── Voter popovers ──────────────────────────────────────────────────────
+    // Hovering a vote button that already has at least one vote shows who
+    // voted for that map. Resolved lazily from /api/map-voters and cached per
+    // map so re-hovering the same button doesn't refetch. Pointer-only, same
+    // reasoning as the thumbnail preview above.
+    const voterCache = new Map(); // mapUid -> { status: 'loading'|'done'|'error', voters }
+    let votersBox = null;
+    let votersToken = 0;
+
+    function getVotersBox() {
+        if (!votersBox) {
+            votersBox = el('div', 'voters-popover');
+            document.body.appendChild(votersBox);
+        }
+        return votersBox;
+    }
+
+    function hideVoters() {
+        if (votersBox) votersBox.classList.remove('visible');
+    }
+
+    function positionVoters(btn) {
+        const box = getVotersBox();
+        const rect = btn.getBoundingClientRect();
+        const pad = 12;
+        const gap = 8;
+        const w = box.offsetWidth || 220;
+        const h = box.offsetHeight || 40;
+
+        let x = rect.left;
+        let y = rect.bottom + gap;
+        if (x + w + pad > window.innerWidth) x = window.innerWidth - w - pad;
+        if (x < pad) x = pad;
+        // Flip above the button if there's no room below.
+        if (y + h + pad > window.innerHeight) y = rect.top - h - gap;
+
+        box.style.transform =
+            'translate(' + Math.max(pad, x) + 'px, ' + Math.max(pad, y) + 'px)';
+    }
+
+    function renderVoters(box, state) {
+        box.innerHTML = '';
+        if (state.status === 'loading') {
+            box.appendChild(el('div', 'voters-status', 'Loading…'));
+            return;
+        }
+        if (state.status === 'error') {
+            box.appendChild(el('div', 'voters-status', 'Failed to load.'));
+            return;
+        }
+        if (!state.voters.length) {
+            box.appendChild(el('div', 'voters-status', 'No votes yet.'));
+            return;
+        }
+        const list = el('ul', 'voters-list');
+        state.voters.forEach(function (voter) {
+            list.appendChild(el('li', 'voters-item', voter.name || 'Unknown player'));
+        });
+        box.appendChild(list);
+    }
+
+    async function loadVoters(mapUid) {
+        const cached = voterCache.get(mapUid);
+        if (cached && cached.status !== 'error') return cached;
+
+        voterCache.set(mapUid, { status: 'loading', voters: [] });
+        let entry;
+        try {
+            const data = await window.tm.api(
+                '/api/map-voters?mapUid=' + encodeURIComponent(mapUid)
+            );
+            entry = { status: 'done', voters: data.voters || [] };
+        } catch (e) {
+            entry = { status: 'error', voters: [] };
+        }
+        voterCache.set(mapUid, entry);
+        return entry;
+    }
+
+    function attachVotersPopover(btn, mapUid) {
+        if (!canHover) return;
+
+        btn.addEventListener('mouseenter', async function () {
+            const count = parseInt(btn.dataset.count || '0', 10);
+            if (!count) return; // nobody to show
+
+            const myToken = ++votersToken;
+            const box = getVotersBox();
+            const cached = voterCache.get(mapUid);
+            renderVoters(
+                box,
+                cached && cached.status !== 'error'
+                    ? cached
+                    : { status: 'loading', voters: [] }
+            );
+            positionVoters(btn);
+            box.classList.add('visible');
+
+            const state = await loadVoters(mapUid);
+            // The user may have moved to a different button while this was
+            // in flight, or moved away entirely — don't clobber what's shown.
+            if (myToken !== votersToken) return;
+            if (!box.classList.contains('visible')) return;
+            renderVoters(box, state);
+            positionVoters(btn);
+        });
+
+        btn.addEventListener('mouseleave', function () {
+            hideVoters();
+        });
+    }
+
+    // Both popovers are position: fixed, so anything that moves the page under
+    // the cursor would strand them next to an element that is no longer there.
+    if (canHover) {
+        window.addEventListener('scroll', hidePreview, true);
+        window.addEventListener('blur', hidePreview);
+        window.addEventListener('scroll', hideVoters, true);
+        window.addEventListener('blur', hideVoters);
     }
 
     // ── Rows and voting ─────────────────────────────────────────────────────
@@ -172,6 +286,7 @@
         btn.addEventListener('click', function () {
             toggleVote(map.mapUid, btn);
         });
+        attachVotersPopover(btn, map.mapUid);
         row.appendChild(btn);
 
         return row;
@@ -180,6 +295,7 @@
     function setBtn(btn, voted, count) {
         btn.classList.toggle('voted', voted);
         btn.dataset.voted = voted ? '1' : '0';
+        btn.dataset.count = String(count);
         btn.textContent = (voted ? '✓ ' : '+ ') + count;
     }
 
@@ -197,6 +313,8 @@
             if (data.voted) myVotes.add(mapUid);
             else myVotes.delete(mapUid);
             setBtn(btn, data.voted, data.votes);
+            // The vote count just changed — next hover should show the fresh list.
+            voterCache.delete(mapUid);
         } catch (e) {
             if (e.status === 401) {
                 window.tm.sessionExpired();

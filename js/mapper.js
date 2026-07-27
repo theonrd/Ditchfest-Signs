@@ -8,6 +8,8 @@
 (function () {
     const el = window.tm.el;
 
+    let myVotes = new Set();
+
     function root() {
         return document.getElementById('mapper-root');
     }
@@ -41,6 +43,7 @@
             const data = await window.tm.api(
                 '/api/mapper?id=' + encodeURIComponent(id)
             );
+            myVotes = new Set(data.myVotes || []);
             render(data);
         } catch (e) {
             message(
@@ -110,6 +113,79 @@
         return box;
     }
 
+    // ── Hover preview ───────────────────────────────────────────────────────
+    // Same behaviour as on the voting page: the row thumbnail is 64x36, too
+    // small to recognise a map by. Hovering it shows the same image full size
+    // in a box that follows the cursor. Pointer-only: touch devices skip it.
+    const canHover =
+        !window.matchMedia || window.matchMedia('(hover: hover)').matches;
+
+    let preview = null;
+    let previewImg = null;
+    let lastPoint = null;
+
+    function getPreview() {
+        if (!preview) {
+            preview = el('div', 'map-preview');
+            previewImg = el('img');
+            previewImg.alt = '';
+            // The box has no height until the image arrives, so the first
+            // placement is a guess — redo it once the real size is known.
+            previewImg.addEventListener('load', function () {
+                if (lastPoint) movePreview(lastPoint);
+            });
+            previewImg.addEventListener('error', hidePreview);
+            preview.appendChild(previewImg);
+            document.body.appendChild(preview);
+        }
+        return preview;
+    }
+
+    function hidePreview() {
+        if (preview) preview.classList.remove('visible');
+    }
+
+    function movePreview(e) {
+        const box = getPreview();
+        lastPoint = { clientX: e.clientX, clientY: e.clientY };
+        const pad = 12;
+        const gap = 20;
+        const w = box.offsetWidth || 400;
+        const h = Math.max(box.offsetHeight, (box.offsetWidth || 400) * 0.5625);
+
+        let x = e.clientX + gap;
+        let y = e.clientY + gap;
+        // Flip to the other side of the cursor rather than run off-screen.
+        if (x + w + pad > window.innerWidth) x = e.clientX - w - gap;
+        if (y + h + pad > window.innerHeight) y = e.clientY - h - gap;
+
+        box.style.transform =
+            'translate(' + Math.max(pad, x) + 'px, ' + Math.max(pad, y) + 'px)';
+    }
+
+    // The box is position: fixed, so anything that moves the page under the
+    // cursor would strand it next to a thumbnail that is no longer there.
+    if (canHover) {
+        window.addEventListener('scroll', hidePreview, true);
+        window.addEventListener('blur', hidePreview);
+    }
+
+    function attachPreview(thumb, url) {
+        if (!canHover) return;
+
+        thumb.addEventListener('mouseenter', function (e) {
+            const box = getPreview();
+            if (previewImg.src !== url) previewImg.src = url;
+            movePreview(e);
+            box.classList.add('visible');
+        });
+        thumb.addEventListener('mousemove', movePreview);
+        thumb.addEventListener('mouseleave', function () {
+            lastPoint = null;
+            hidePreview();
+        });
+    }
+
     function mapRow(map) {
         const row = el('div', 'map-row');
 
@@ -120,7 +196,9 @@
             img.loading = 'lazy';
             img.addEventListener('error', function () {
                 img.style.display = 'none';
+                hidePreview();
             });
+            attachPreview(img, map.thumbnailUrl);
             row.appendChild(img);
         }
 
@@ -129,8 +207,45 @@
         info.appendChild(el('div', 'map-author', map.editionName || ''));
         row.appendChild(info);
 
-        row.appendChild(el('div', 'map-votes', map.votes + ' ✓'));
+        const btn = el('button', 'vote-btn vote-btn-sm');
+        setBtn(btn, myVotes.has(map.mapUid), map.votes);
+        btn.addEventListener('click', function () {
+            toggleVote(map.mapUid, btn);
+        });
+        row.appendChild(btn);
+
         return row;
+    }
+
+    function setBtn(btn, voted, count) {
+        btn.classList.toggle('voted', voted);
+        btn.dataset.voted = voted ? '1' : '0';
+        btn.textContent = (voted ? '✓ ' : '+ ') + count;
+    }
+
+    async function toggleVote(mapUid, btn) {
+        if (!window.tm.isLoggedIn()) {
+            window.tm.login();
+            return;
+        }
+        const value = btn.dataset.voted !== '1';
+        btn.disabled = true;
+        try {
+            const data = await window.tm.api('/api/vote', {
+                body: { mapUid: mapUid, value: value },
+            });
+            if (data.voted) myVotes.add(mapUid);
+            else myVotes.delete(mapUid);
+            setBtn(btn, data.voted, data.votes);
+        } catch (e) {
+            if (e.status === 401) {
+                window.tm.sessionExpired();
+                return;
+            }
+            // Network error — leave the button as it was.
+        } finally {
+            btn.disabled = false;
+        }
     }
 
     // ── Owner-only bits ─────────────────────────────────────────────────────

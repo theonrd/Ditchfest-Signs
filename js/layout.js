@@ -16,6 +16,7 @@
         { href: 'voting.html', label: 'Voting' },
         { href: 'top-players.html', label: 'Players' },
         { href: 'top-mappers.html', label: 'Mappers' },
+        { href: 'roadmap.html', label: 'Roadmap' },
     ];
 
     // Pages that are not nav entries themselves but belong under one. Anything

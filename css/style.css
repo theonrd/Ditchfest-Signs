@@ -1169,3 +1169,108 @@ a.auth-btn {
 .ob-map-name:hover {
     text-decoration: underline;
 }
+
+/* --- Roadmap (roadmap.html) --- */
+#roadmap-root {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.roadmap-group {
+    margin: 32px 0 0 0;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.025);
+    overflow: hidden;
+}
+
+.roadmap-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 14px 18px;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: normal;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.roadmap-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.roadmap-badge-short {
+    background-color: #2e7d32;
+    color: #fff;
+}
+
+.roadmap-badge-mid {
+    background-color: #1565c0;
+    color: #fff;
+}
+
+.roadmap-badge-long {
+    background-color: #6a1b9a;
+    color: #fff;
+}
+
+.roadmap-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.roadmap-item {
+    position: relative;
+    padding: 12px 18px 12px 36px;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    border-bottom: 1px solid #242424;
+}
+
+.roadmap-item:last-child {
+    border-bottom: none;
+}
+
+.roadmap-item::before {
+    content: "○";
+    position: absolute;
+    left: 16px;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.roadmap-item.done {
+    color: #888;
+    text-decoration: line-through;
+}
+
+.roadmap-item.done::before {
+    content: "✓";
+    color: #81c784;
+}
+
+.roadmap-item.muted {
+    color: #666;
+    font-style: italic;
+}
+
+.roadmap-item.muted::before {
+    content: "–";
+    color: #444;
+}
+
+.roadmap-badge-plan {
+    background-color: #5d4037;
+    color: #fff;
+}

@@ -57,7 +57,7 @@
     function render(m) {
         const box = root();
         box.innerHTML = '';
-        document.title = (m.name || 'Account') + ' — Ditchfest Signs';
+        document.title = 'Ditchfest ' + (m.name || 'Account');
 
         box.appendChild(headerCard(m));
 

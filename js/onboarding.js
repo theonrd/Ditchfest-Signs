@@ -175,7 +175,14 @@
         }
 
         const info = el('div', 'ob-map-info');
-        info.appendChild(el('div', 'ob-map-name', map.name));
+        const nameLink = el('a', 'ob-map-name', map.name);
+        nameLink.href = 'https://trackmania.io/#/leaderboard/' + encodeURIComponent(map.mapUid);
+        nameLink.target = '_blank';
+        nameLink.rel = 'noopener';
+        nameLink.addEventListener('click', function (e) {
+            e.stopPropagation(); // не даём кнопке сработать
+        });
+        info.appendChild(nameLink);
         info.appendChild(
             el('div', 'ob-map-author', map.authorName ? 'by ' + map.authorName : '')
         );

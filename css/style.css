@@ -1159,3 +1159,13 @@ a.auth-btn {
 .mapper-owner-actions .admin-badge {
     margin-top: 0;
 }
+
+.map-name,
+.ob-map-name {
+    color: inherit;
+    text-decoration: none;
+}
+.map-name:hover,
+.ob-map-name:hover {
+    text-decoration: underline;
+}

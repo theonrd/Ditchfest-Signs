@@ -275,7 +275,11 @@
         }
 
         const info = el('div', 'map-info');
-        info.appendChild(el('div', 'map-name', map.name));
+        const nameLink = el('a', 'map-name', map.name);
+        nameLink.href = 'https://trackmania.io/#/leaderboard/' + encodeURIComponent(map.mapUid);
+        nameLink.target = '_blank';
+        nameLink.rel = 'noopener';
+        info.appendChild(nameLink);
         info.appendChild(
             el('div', 'map-author', map.authorName ? 'by ' + map.authorName : '')
         );
